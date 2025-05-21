@@ -1,4 +1,5 @@
 const { getDatabase } = require("../database");
+const Cart = require("./Cart");
 
 const COLLECTION_NAME = "products";
 
@@ -14,7 +15,6 @@ class Product {
 
     try {
       const products = await db.collection(COLLECTION_NAME).find({}).toArray();
-
       return products;
     } catch (error) {
       console.error("Error occurred while searching for all products");
@@ -54,6 +54,7 @@ class Product {
 
     try {
       await db.collection(COLLECTION_NAME).deleteOne({ name });
+      await Cart.deleteProductByName(name);
     } catch (error) {
       console.error("Error occurred while deleting product");
     }

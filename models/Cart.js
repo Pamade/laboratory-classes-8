@@ -113,6 +113,41 @@ class Cart {
       console.error("Error occurred while clearing cart");
     }
   }
+
+  static async cleanupInvalidItems() {
+    const db = getDatabase();
+
+    try {
+      const cart = await this.getCart();
+      const validItems = cart.items.filter(item => 
+        item.product && 
+        item.product.name && 
+        item.product.description && 
+        item.product.price
+      );
+      
+      await db
+        .collection(COLLECTION_NAME)
+        .updateOne({}, { $set: { items: validItems } });
+    } catch (error) {
+      console.error("Error occurred while cleaning up cart");
+    }
+  }
+
+  static async deleteProductByName(productName) {
+    const db = getDatabase();
+
+    try {
+      const cart = await this.getCart();
+      const updatedItems = cart.items.filter(item => item.product.name !== productName);
+      
+      await db
+        .collection(COLLECTION_NAME)
+        .updateOne({}, { $set: { items: updatedItems } });
+    } catch (error) {
+      console.error("Error occurred while deleting product from cart");
+    }
+  }
 }
 
 module.exports = Cart;
